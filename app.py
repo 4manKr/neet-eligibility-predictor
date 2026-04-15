@@ -58,23 +58,12 @@ if df is not None:
             ["-- Select State --", "None"] + available_states
         )
         
-    st.markdown("---")
-    st.subheader("2. Special Exceptions (Optional)")
-    st.caption("These apply to special frameworks in state rules.")
-    
-    spec_col1, spec_col2 = st.columns(2)
-    with spec_col1:
-        is_apst = st.checkbox("I am an APST (Arunachal Pradesh Scheduled Tribe) Candidate")
-    with spec_col2:
-        is_govt_employee_ward = st.checkbox("My parents are long-term Central/State Govt Employees posted in Chandigarh or Dadra & Nagar Haveli")
-        
-    st.markdown("---")
-        
     if st.button("Discover My Eligible States", type="primary"):
         if domicile_state == "-- Select State --" or schooling_state == "-- Select State --":
             st.warning("Please select both your Domicile and Schooling states (or choose 'None').")
         else:
-            st.subheader("3. Your Eligibility Results")
+            st.divider()
+            st.subheader("2. Your Eligibility Results")
             
             eligible_states = []
             not_eligible_states = []
@@ -99,27 +88,10 @@ if df is not None:
                 elif eligibility_type == 'Both Required':
                     is_eligible = has_domicile and has_schooling
                 elif eligibility_type == 'Special':
-                    # Handle the 3 Special States
-                    if 'Arunachal Pradesh' in target_state:
-                        # APST has 80% reservation. Non-APST needs residence AND schooling
-                        is_eligible = is_apst or (has_domicile and has_schooling)
-                        
-                    elif 'Chandigarh' in target_state:
-                        # Schooling OR parents residence/govt service
-                        is_eligible = has_schooling or has_domicile or is_govt_employee_ward
-                        
-                    elif 'Dadra' in target_state or 'Daman' in target_state:
-                        # Priority list (domicile or schooling or parental posting)
-                        is_eligible = has_domicile or has_schooling or is_govt_employee_ward
+                    is_eligible = False  # Treat special cases as generally not eligible/omitted
                 
                 if is_eligible:
-                    # Provide clearer context for special states inside the UI
-                    if eligibility_type == 'Special':
-                        eth_type = "Special/Mixed (Condition Met)"
-                    else:
-                        eth_type = eligibility_type
-                        
-                    eligible_states.append((target_state, rule, eth_type))
+                    eligible_states.append((target_state, rule, eligibility_type))
                 else:
                     not_eligible_states.append(target_state)
             
@@ -127,13 +99,15 @@ if df is not None:
             
             # Display Eligible States
             if eligible_states:
-                st.success(f"🎉 **You are eligible for {len(eligible_states)} state(s) quotas!**")
+                st.success(f"🎉 **You are strongly eligible for {len(eligible_states)} state(s)!**")
                 for state_name, rule, eth_type in eligible_states:
                     with st.expander(f"✅ {state_name}"):
                         st.write(f"**Basis for eligibility:** {eth_type}")
-                        st.info(f"**Official Rule snippet:** {rule}")
+                        st.info(f"**Rule snippet:** {rule}")
             else:
-                st.error("You do not clearly meet the primary rules for any state's 85% quota based on your inputs.")
+                st.error("You are not broadly eligible for any standard state quotas based on these primary rules alone.")
                 
+            # Note: Special Frameworks are intentionally omitted as per user preference.
+
 st.markdown("---")
 st.caption("A tool built with Streamlit. Note: This predicts purely off general 85% regional quota rules. Always cross-check official counseling brochures.")
