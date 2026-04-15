@@ -66,6 +66,7 @@ if df is not None:
             st.subheader("2. Your Eligibility Results")
             
             eligible_states = []
+            special_states = []
             not_eligible_states = []
             
             # Analyze every state
@@ -88,7 +89,8 @@ if df is not None:
                 elif eligibility_type == 'Both Required':
                     is_eligible = has_domicile and has_schooling
                 elif eligibility_type == 'Special':
-                    is_eligible = False  # Treat special cases as generally not eligible/omitted
+                    special_states.append((target_state, rule))
+                    continue # handled separately
                 
                 if is_eligible:
                     eligible_states.append((target_state, rule, eligibility_type))
@@ -107,7 +109,14 @@ if df is not None:
             else:
                 st.error("You are not broadly eligible for any standard state quotas based on these primary rules alone.")
                 
-            # Note: Special Frameworks are intentionally omitted as per user preference.
+            # Display Mixed Case Frameworks
+            if special_states:
+                st.markdown("---")
+                st.warning(f"⚠️ **{len(special_states)} state(s) use a Mixed Case Framework.**")
+                st.markdown("Your eligibility in these states depends on specific mixed rules (like parent long-term service, etc.) rather than simple yes/no Domicile/Schooling matches.")
+                for state_name, rule in special_states:
+                    with st.expander(f"🧩 {state_name} (Mixed Framework)"):
+                        st.info(f"**Rule Snippet:** {rule}")
 
 st.markdown("---")
 st.caption("A tool built with Streamlit. Note: This predicts purely off general 85% regional quota rules. Always cross-check official counseling brochures.")
