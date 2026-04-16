@@ -40,7 +40,7 @@ else:
         round_choice = st.selectbox("Select Counselling Round:", ["R1", "R2", "R3"])
     with d_col3:
         all_categories = sorted(deemed_df['Category'].dropna().unique().tolist())
-        category_choice = st.selectbox("Filter by Category:", ["All"] + all_categories)
+        category_choice = st.selectbox("Filter by Category:", all_categories)
 
     # ----- OPTIONAL FEE FILTER -----
     fee_col = deemed_df['Fee'].dropna()
