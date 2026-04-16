@@ -39,7 +39,6 @@ else:
     with d_col2:
         round_choice = st.selectbox("Select Counselling Round:", ["R1", "R2", "R3"])
     with d_col3:
-        # Build category filter from the file's Category column
         all_categories = sorted(deemed_df['Category'].dropna().unique().tolist())
         category_choice = st.selectbox("Filter by Category:", ["All"] + all_categories)
 
@@ -63,48 +62,29 @@ else:
         st.divider()
 
         rank_col = f"{round_choice} Rank"
-
-        # The Variance Logic: Widen the search window by increasing the rank by 10%.
-        # A larger rank number = worse rank, so this includes borderline colleges.
-        # e.g. Rank 300,000 → adjusted to 330,000, capturing colleges with cutoff up to 330k.
         adjusted_student_rank = student_rank * 1.10
 
-        # Work on a copy
         temp_df = deemed_df.copy()
 
-        # Filter colleges where cutoff rank >= adjusted_student_rank AND rank is not NaN
         base_eligible = temp_df[
             (temp_df[rank_col] >= adjusted_student_rank) &
             (temp_df[rank_col].notna())
         ].copy()
 
-        # Apply category filter logic (matching notebook behaviour)
         if category_choice == "All":
             eligible_deemed = base_eligible.copy()
         else:
-            # Include colleges from the selected category + OPEN category
             specific = base_eligible[base_eligible['Category'] == category_choice]
             open_cat = base_eligible[base_eligible['Category'] == 'OPEN']
             eligible_deemed = pd.concat([specific, open_cat]).drop_duplicates().copy()
 
-        # Filter by fee range if applicable
         if fee_range is not None:
             eligible_deemed = eligible_deemed[
                 (eligible_deemed['Fee'] >= fee_range[0]) & (eligible_deemed['Fee'] <= fee_range[1])
             ]
 
-        # Add Chance classification
-        def get_chance(college_rank):
-            if college_rank < student_rank:
-                return "🟢 High Chance"
-            elif college_rank < student_rank * 1.05:
-                return "🟡 Moderate Chance"
-            else:
-                return "🔴 Low Chance"
-
         if not eligible_deemed.empty:
             eligible_deemed = eligible_deemed.sort_values(by=rank_col, ascending=True)
-            eligible_deemed['Chance'] = eligible_deemed[rank_col].apply(get_chance)
 
             st.success(
                 f"🎉 Based on your rank **{student_rank:,}** (adjusted to {adjusted_student_rank:,.0f}), "
@@ -112,8 +92,7 @@ else:
                 f"Deemed Colleges in **{round_choice}**!"
             )
 
-            # Format for display
-            display_df = eligible_deemed[['Institute Name', 'State', 'Category', 'Fee', rank_col, 'Chance']].copy()
+            display_df = eligible_deemed[['Institute Name', 'State', 'Category', 'Fee', rank_col]].copy()
             display_df = display_df.rename(columns={rank_col: "Cutoff Rank"})
             display_df['Fee'] = display_df['Fee'].apply(lambda x: f"₹{int(x):,}" if pd.notna(x) else "N/A")
 
@@ -122,15 +101,6 @@ else:
                 use_container_width=True,
                 hide_index=True
             )
-
-            # Summary metrics
-            m1, m2, m3 = st.columns(3)
-            high = len(eligible_deemed[eligible_deemed['Chance'].str.contains("High")])
-            mod = len(eligible_deemed[eligible_deemed['Chance'].str.contains("Moderate")])
-            low = len(eligible_deemed[eligible_deemed['Chance'].str.contains("Low")])
-            m1.metric("🟢 High Chance", high)
-            m2.metric("🟡 Moderate Chance", mod)
-            m3.metric("🔴 Low Chance", low)
         else:
             st.error(
                 "No Deemed colleges matched your variance parameters in this round. "

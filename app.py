@@ -7,7 +7,7 @@ st.set_page_config(
 )
 
 st.title("🎓 NEET UG Centralized Counselling Portal")
-st.markdown("Welcome to the smartest NEET counselling intelligence hub. Use the sidebar to navigate between tools.")
+st.markdown("Welcome to the smartest NEET counselling intelligence hub.")
 st.markdown("---")
 
 col1, col2 = st.columns(2)
@@ -39,4 +39,4 @@ with col2:
     st.page_link("pages/2_Deemed_College_Predictor.py", label="Open Deemed College Predictor →", icon="🏥")
 
 st.markdown("---")
-st.caption("Developed securely. Note: AI evaluations are predictive guides based on 2024-2025 data architectures.")
+st.caption("Developed securely By Aman Kumar. Note: AI evaluations are predictive guides based on 2024-2025 data architectures.")
