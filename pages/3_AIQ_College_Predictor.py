@@ -16,7 +16,7 @@ def load_aiq_data():
 
 st.set_page_config(page_title="All India Quota Predictor | NEET UG", page_icon="🇮🇳", layout="wide")
 
-st.title("🇮🇳 All India Quota (MCC) College Predictor")
+st.title("All India Quota (MCC) College Predictor")
 st.markdown(
     "Enter your **NEET rank** and **category** to predict your realistic chances at "
     "government medical colleges under the **15% All India Quota** counselled by MCC. "
