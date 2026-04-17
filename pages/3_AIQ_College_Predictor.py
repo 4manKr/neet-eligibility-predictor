@@ -1,12 +1,18 @@
 import streamlit as st
 import pandas as pd
-import sys
 import os
 
-# Ensure project root is on sys.path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-from utils.data_loader import load_aiq_data
+@st.cache_data
+def load_aiq_data():
+    """Load the Aman TAB India MCC AIQ MBBS Cutoff Excel file."""
+    excel_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Aman_TAB_India_MCC_AIQ_MBBS_Cutoff_2025.xlsx')
+    if not os.path.exists(excel_path):
+        return None
+    try:
+        df = pd.read_excel(excel_path)
+        return df
+    except Exception as e:
+        return None
 
 st.set_page_config(page_title="All India Quota Predictor | NEET UG", page_icon="🇮🇳", layout="wide")
 
